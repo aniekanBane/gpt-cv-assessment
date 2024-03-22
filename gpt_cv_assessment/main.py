@@ -2,7 +2,7 @@ def get_job_description():
     company = input('Enter company name > ').strip()
     job_title = input('Enter job title > ').strip()
     location = input('Enter job location > ').strip()
-    notice_period = input('Enter notice period is applicable > ').strip()
+    notice_period = input('Enter notice period (if applicable) > ').strip()
     min_experience = input('Enter minimum years of experience > ').strip()
     max_experience = input('Enter maximum years of experience > ').strip()
     min_salary = input("Minimum salary offered (p.a): ").strip()
@@ -33,7 +33,11 @@ def get_job_description():
 if __name__ == '__main__':
     import helper
     from openai import OpenAI
-    from processors import JobRequirementProcessor
+    from processors import JobRequirementProcessor, ResumeProcessor
+
+    path = input('Enter resume path >').strip()
+    rs_processor = ResumeProcessor()
+    resume_data = rs_processor.read_document(path)
 
     openai_client = OpenAI()
 
@@ -43,4 +47,10 @@ if __name__ == '__main__':
     requirements = jd_processor.process_reqirement(values)
 
     helper.save_to_json(requirements, 'jd_requirements.json')
-    print('extracted infromation', requirements)
+    print('[JOB DESCRIPTION SUMMARY]\n', requirements)
+
+    resume_data, _, _ = rs_processor.check_and_trim(resume_data)
+    resume_summary = rs_processor.get_resume_summary(resume_data)
+
+    helper.save_to_json(resume_summary, 'resume_summary.json')
+    print('\n[RESUME SUMMARY]\n', resume_summary)
